@@ -1,1 +1,41 @@
 /* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.invalid-input {
+  border: 1px solid red;
+}
+
+.invalid-input:focus {
+  border: 1px solid red;
+  outline: none;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.field::after {
+  content: attr(data-error);
+  color: red;
+  font-size: 0.75rem;
+  display: block;
+  margin-top: 4px;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
