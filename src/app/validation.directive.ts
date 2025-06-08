@@ -40,7 +40,7 @@ export class ValidationDirective<T> implements OnInit {
   private readonly ngForm = inject(NgForm);
   private readonly destroyRef = inject(DestroyRef);
 
-  public readonly schema = input.required<v.ObjectSchema<any, any>>();
+  public readonly schema = input.required<v.ObjectSchemaAsync<any, any>>();
   public readonly value = input.required<T>();
 
   public readonly errorMap = signal<Record<path, message[]>>({});
@@ -53,7 +53,9 @@ export class ValidationDirective<T> implements OnInit {
     this.ngForm.form.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef), debounceTime(100))
       .subscribe(() => {
-        this.mapErrors(v.safeParse(this.schema(), this.value()));
+        v.safeParseAsync(this.schema(), this.value()).then((result) => {
+          this.mapErrors(result);
+        });
       });
   }
 

@@ -6,17 +6,19 @@ import { ValidationErrorMsgDirective } from './validation-error-msg.directive';
 import { MatTooltip } from '@angular/material/tooltip';
 import { KeyValuePipe } from '@angular/common';
 import { sanitizePathToClass } from './util';
+import { debounceTime, firstValueFrom, of } from 'rxjs';
 
-const userSchema = v.object({
+const userSchema = v.objectAsync({
   username: v.pipe(
     v.string(),
     v.nonEmpty('Please enter your username.'),
     v.minLength(3, 'Username must be at least 3 characters long')
   ),
-  email: v.pipe(
+  email: v.pipeAsync(
     v.string('Your email must be a string.'),
     v.nonEmpty('Please enter your email.'),
-    v.email('The email address is badly formatted.')
+    v.email('The email address is badly formatted.'),
+    v.checkAsync(isEmailTaken, 'This email is already taken.')
   ),
   contacts: v.pipe(
     v.array(
@@ -102,4 +104,13 @@ export class AppComponent {
       }
     }
   }
+}
+
+function isEmailTaken(email: string): Promise<boolean> {
+  const takenEmail = email.toLowerCase();
+  if (takenEmail === 'taken@valibot.com') {
+    return Promise.resolve(false);
+  }
+
+  return firstValueFrom(of(true).pipe(debounceTime(100)));
 }
