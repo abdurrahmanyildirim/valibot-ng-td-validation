@@ -4,9 +4,10 @@ import * as v from 'valibot';
 import { ValidationDirective } from './validation.directive';
 import { ValidationErrorMsgDirective } from './validation-error-msg.directive';
 import { MatTooltip } from '@angular/material/tooltip';
-import { KeyValuePipe } from '@angular/common';
+import { JsonPipe, KeyValuePipe } from '@angular/common';
 import { sanitizePathToClass } from './util';
 import { debounceTime, firstValueFrom, of } from 'rxjs';
+import { MatIcon } from '@angular/material/icon';
 
 const userSchema = v.objectAsync({
   username: v.pipe(
@@ -20,6 +21,7 @@ const userSchema = v.objectAsync({
     v.email('The email address is badly formatted.'),
     v.checkAsync(isEmailTaken, 'This email is already taken.')
   ),
+  age: v.pipe(v.number(), v.maxValue(20, 'Age must be less than 20.')),
   contacts: v.pipe(
     v.array(
       v.object({
@@ -68,6 +70,8 @@ type User = {
     ValidationErrorMsgDirective,
     MatTooltip,
     KeyValuePipe,
+    JsonPipe,
+    MatIcon,
   ],
 })
 export class AppComponent {
@@ -103,6 +107,10 @@ export class AppComponent {
         (el as HTMLElement).focus();
       }
     }
+  }
+
+  removeContact(index: number): void {
+    this.user.contacts.splice(index, 1);
   }
 }
 

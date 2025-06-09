@@ -1,103 +1,103 @@
-<div class="container">
-  <form
-    #form="ngForm"
-    [schema]="schema"
-    [value]="user"
-    (errorMessages)="errorMessages.set($event)"
-    class="form"
-  >
-    <div class="field">
-      <label for="username">Username</label>
+<form
+  #form="ngForm"
+  [schema]="schema"
+  [value]="user"
+  (errorMessages)="errorMessages.set($event)"
+  class="form"
+>
+  <div class="field">
+    <label for="username">Username</label>
+    <input
+      type="text"
+      name="username"
+      [(ngModel)]="user.username"
+      validationErrorMsg
+    />
+  </div>
+
+  <div class="field">
+    <label for="email">Email</label>
+    <input
+      type="email"
+      name="email"
+      [(ngModel)]="user.email"
+      validationErrorMsg
+    />
+  </div>
+
+  <div class="field">
+    <label for="age">Age</label>
+    <input type="number" name="age" [(ngModel)]="user.age" validationErrorMsg />
+  </div>
+  <div>
+    <button (click)="addContact()">Add Contact</button>
+  </div>
+
+  @for (contact of user.contacts; track $index) {
+  <h3 style="display: flex; align-items: center; gap: 5px">
+    Contact {{ $index + 1 }} <mat-icon style="cursor: pointer" (click)="removeContact($index)">delete</mat-icon>
+  </h3>
+  <div>
+    <span class="field">
+      <label for="contacts[{{ $index }}].name">Contact Name</label>
       <input
         type="text"
-        name="username"
-        [(ngModel)]="user.username"
+        name="contacts[{{ $index }}].name"
+        [(ngModel)]="contact.name"
         validationErrorMsg
       />
-    </div>
+    </span>
 
-    <div class="field">
-      <label for="email">Email</label>
+    <span class="field">
+      <label for="contacts[{{ $index }}].phone">Phone</label>
       <input
-        type="email"
-        name="email"
-        [(ngModel)]="user.email"
+        type="text"
+        name="contacts[{{ $index }}].phone"
+        [(ngModel)]="contact.phone"
         validationErrorMsg
       />
-    </div>
-
-    <div class="field">
-      <label for="age">Age</label>
+    </span>
+  </div>
+  <div ngModelGroup="contacts[{{ $index }}].address">
+    @if ( contact.address !== undefined ) {
+    <span class="field">
+      <label for="street">Street</label>
       <input
-        type="number"
-        name="age"
-        [(ngModel)]="user.age"
+        type="text"
+        name="street"
+        [(ngModel)]="contact.address.street"
         validationErrorMsg
       />
-    </div>
-    <div>
-      <button (click)="addContact()">Add Contact</button>
-    </div>
-
-    @for (contact of user.contacts; track $index) {
-    <h3>Contact {{ $index + 1 }}</h3>
-    <div>
-      <span class="field">
-        <label for="contacts[{{ $index }}].name">Contact Name</label>
-        <input
-          type="text"
-          name="contacts[{{ $index }}].name"
-          [(ngModel)]="contact.name"
-          validationErrorMsg
-        />
-      </span>
-
-      <span class="field">
-        <label for="contacts[{{ $index }}].phone">Phone</label>
-        <input
-          type="text"
-          name="contacts[{{ $index }}].phone"
-          [(ngModel)]="contact.phone"
-          validationErrorMsg
-        />
-      </span>
-    </div>
-    <div ngModelGroup="contacts[{{ $index }}].address">
-      @if ( contact.address !== undefined ) {
-      <span class="field">
-        <label for="street">Street</label>
-        <input
-          type="text"
-          name="street"
-          [(ngModel)]="contact.address.street"
-          validationErrorMsg
-        />
-      </span>
-      <span class="field">
-        <label for="country">Country</label>
-        <input
-          type="text"
-          name="country"
-          [(ngModel)]="contact.address.country"
-          validationErrorMsg
-        />
-      </span>
-      }
-    </div>
-
-    }
-  </form>
-
-  <div class="error-messages">
-    <h3>Errors</h3>
-    @for (error of errorMessages() | keyvalue; track error.key) {
-    <div
-      class="error-message"
-      (click)="focusOnError(error.key)"
-      (keydown)="$event.stopPropagation()"
-    >
-      <span>{{ error.value[0] }}</span>
-    </div>
+    </span>
+    <span class="field">
+      <label for="country">Country</label>
+      <input
+        type="text"
+        name="country"
+        [(ngModel)]="contact.address.country"
+        validationErrorMsg
+      />
+    </span>
     }
   </div>
+
+  }
+</form>
+
+<div class="error-messages">
+  @for (error of errorMessages() | keyvalue; track error.key) {
+  <div
+    class="error-message"
+    (click)="focusOnError(error.key)"
+    (keydown)="$event.stopPropagation()"
+  >
+    <span>{{ error.value[0] }}</span>
+  </div>
+  } @empty {
+  <p>No errors found</p>
+  }
+</div>
+
+<div class="values">
+  <pre>{{ user | json }}</pre>
 </div>
