@@ -63,3 +63,9 @@ export class AppComponent {
     this.user.contacts.splice(index, 1);
   }
 }
+
+/**
+ * - Valibot actions eg. trim
+ * - abortEarly
+ * - localization
+ */
