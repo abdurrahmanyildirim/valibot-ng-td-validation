@@ -6,95 +6,98 @@
   class="form"
 >
   <div class="field">
-    <label for="username">Username</label>
+    <span>Username</span>
     <input
       type="text"
       name="username"
       [(ngModel)]="user.username"
-      validationErrorMsg
+      errorDisplay
     />
   </div>
 
   <div class="field">
-    <label for="email">Email</label>
-    <input
-      type="email"
-      name="email"
-      [(ngModel)]="user.email"
-      validationErrorMsg
-    />
+    <span>Email</span>
+    <input type="email" name="email" [(ngModel)]="user.email" errorDisplay />
   </div>
 
   <div class="field">
-    <label for="age">Age</label>
-    <input type="number" name="age" [(ngModel)]="user.age" validationErrorMsg />
+    <span>Age</span>
+    <input type="number" name="age" [(ngModel)]="user.age" errorDisplay />
   </div>
   <div>
-    <button (click)="addContact()">Add Contact</button>
+    <button (click)="addContact()" (keydown)="$event.stopPropagation()">
+      Add Contact
+    </button>
   </div>
 
   @for (contact of user.contacts; track $index) {
-  <h3 style="display: flex; align-items: center; gap: 5px">
-    Contact {{ $index + 1 }} <mat-icon style="cursor: pointer" (click)="removeContact($index)">delete</mat-icon>
-  </h3>
-  <div>
-    <span class="field">
-      <label for="contacts[{{ $index }}].name">Contact Name</label>
-      <input
-        type="text"
-        name="contacts[{{ $index }}].name"
-        [(ngModel)]="contact.name"
-        validationErrorMsg
-      />
-    </span>
+    <h3 style="display: flex; align-items: center; gap: 5px">
+      Contact {{ $index + 1 }}
+      <mat-icon
+        style="cursor: pointer"
+        (click)="removeContact($index)"
+        (keydown)="$event.stopPropagation()"
+        >delete</mat-icon
+      >
+    </h3>
+    <div>
+      <span class="field">
+        <span>Contact Name</span>
+        <!-- name="contacts.{{ $index }}.name" is needed for the error message to work. Help us to detect the input path -->
+        <input
+          type="text"
+          name="contacts.{{ $index }}.name"
+          [(ngModel)]="contact.name"
+          errorDisplay
+        />
+      </span>
 
-    <span class="field">
-      <label for="contacts[{{ $index }}].phone">Phone</label>
-      <input
-        type="text"
-        name="contacts[{{ $index }}].phone"
-        [(ngModel)]="contact.phone"
-        validationErrorMsg
-      />
-    </span>
-  </div>
-  <div ngModelGroup="contacts[{{ $index }}].address">
-    @if ( contact.address !== undefined ) {
-    <span class="field">
-      <label for="street">Street</label>
-      <input
-        type="text"
-        name="street"
-        [(ngModel)]="contact.address.street"
-        validationErrorMsg
-      />
-    </span>
-    <span class="field">
-      <label for="country">Country</label>
-      <input
-        type="text"
-        name="country"
-        [(ngModel)]="contact.address.country"
-        validationErrorMsg
-      />
-    </span>
-    }
-  </div>
-
+      <span class="field">
+        <span>Phone</span>
+        <input
+          type="text"
+          name="contacts.{{ $index }}.phone"
+          [(ngModel)]="contact.phone"
+          errorDisplay
+        />
+      </span>
+    </div>
+    <div ngModelGroup="contacts.{{ $index }}.address">
+      @if (contact.address !== undefined) {
+        <span class="field">
+          <span>Street</span>
+          <input
+            type="text"
+            name="street"
+            [(ngModel)]="contact.address.street"
+            errorDisplay
+          />
+        </span>
+        <span class="field">
+          <span>Country</span>
+          <input
+            type="text"
+            name="country"
+            [(ngModel)]="contact.address.country"
+            errorDisplay
+          />
+        </span>
+      }
+    </div>
   }
 </form>
 
 <div class="error-messages">
   @for (error of errorMessages() | keyvalue; track error.key) {
-  <div
-    class="error-message"
-    (click)="focusOnError(error.key)"
-    (keydown)="$event.stopPropagation()"
-  >
-    <span>{{ error.value[0] }}</span>
-  </div>
+    <div
+      class="error-message"
+      (click)="focusOnError(error.key)"
+      (keydown)="$event.stopPropagation()"
+    >
+      <span>{{ error.value[0] }}</span>
+    </div>
   } @empty {
-  <p>No errors found</p>
+    <p>No errors found</p>
   }
 </div>
 

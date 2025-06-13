@@ -9,33 +9,32 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-.invalid-input {
-  border: 1px solid red;
-}
-
+.invalid-input,
 .invalid-input:focus {
-  border: 1px solid red;
-  outline: none;
+  outline: 1px solid red;
+  outline-offset: -1px;
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.error-message-helper {
   position: relative;
   padding-bottom: 15px;
-}
 
-.field::after {
-  content: attr(data-error);
-  color: red;
-  font-size: 0.75rem;
-  display: block;
-  margin-top: 4px;
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  &::after {
+    content: attr(data-error);
+    color: red;
+    font-size: 0.75rem;
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  &[data-error]::after {
+    opacity: 1;
+  }
 }

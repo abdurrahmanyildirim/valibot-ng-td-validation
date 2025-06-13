@@ -18,21 +18,16 @@ import * as v from 'valibot';
 /**
  * Path of the error
  * @example
- * contacts[0].name
- * contacts[2].address.country
+ * contacts.0.name
+ * contacts.2.address.country
  *
  */
 type path = string;
 type message = string;
 
-type issuePath = {
-  input: any;
-  key: string | number;
-  origin: any;
-  type: string;
-  value: any;
-};
-
+/**
+ * Directive to validate the form value with the given schema and emit error messages
+ */
 @Directive({
   selector: 'form[schema]',
 })
@@ -40,16 +35,43 @@ export class ValidationDirective<T> implements OnInit {
   private readonly ngForm = inject(NgForm);
   private readonly destroyRef = inject(DestroyRef);
 
+  /**
+   * Schema of the current value
+   */
   public readonly schema = input.required<v.ObjectSchemaAsync<any, any>>();
+
+  /**
+   * Form value
+   */
   public readonly value = input.required<T>();
 
+  /**
+   * Error map of the current value
+   * It will be updated when the form value changes
+   *
+   * Example:
+   * {
+   *   'contacts.0.name': ['Please enter address name.'],
+   *   'contacts.0.phone': ['Please enter address phone.'],
+   *   'contacts.1.name': ['Please enter address name.'],
+   *   'contacts.1.phone': ['Please enter address phone.'],
+   * }
+   */
   public readonly errorMap = signal<Record<path, message[]>>({});
 
+  /**
+   * Output for error messages
+   */
   public readonly errorMessages = outputFromObservable(
-    toObservable(this.errorMap).pipe(takeUntilDestroyed(this.destroyRef))
+    toObservable(this.errorMap).pipe(debounceTime(100)),
   );
 
   ngOnInit(): void {
+    /**
+     * Listen value changes of the form
+     * Validate the form value with the schema
+     * Map the errors to the errorMap
+     */
     this.ngForm.form.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef), debounceTime(100))
       .subscribe(() => {
@@ -60,29 +82,12 @@ export class ValidationDirective<T> implements OnInit {
   }
 
   mapErrors(result: v.SafeParseResult<v.ObjectSchema<any, any>>): void {
-    const errMap: Record<path, message[]> = {};
-    if (result.issues && result.issues.length > 0) {
-      result.issues.forEach((issue) => {
-        const path = issue.path
-          .map((p: issuePath, i: number) => {
-            if (p.type === 'array') {
-              return `[${p.key}]`;
-            }
-            if (i === 0) {
-              return p.key;
-            }
-            return '.' + p.key;
-          })
-          .join('');
-
-        const errorMessages = errMap[path];
-        if (errorMessages) {
-          errorMessages.push(issue.message);
-          // errMap.set(path, errorMessages);
-        } else {
-          errMap[path] = [issue.message];
-        }
-      });
+    let errMap: Record<path, message[]> = {};
+    if (result.issues) {
+      const flattenIssues = v.flatten(result.issues);
+      if (flattenIssues.nested) {
+        errMap = flattenIssues.nested as Record<path, message[]>;
+      }
     }
     this.errorMap.set({ ...errMap });
     // console.log({

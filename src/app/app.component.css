@@ -12,6 +12,12 @@ h3 {
   margin-bottom: 0;
 }
 
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .error-messages {
   display: flex;
   flex-direction: column;

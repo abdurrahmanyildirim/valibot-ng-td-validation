@@ -1,64 +1,15 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import * as v from 'valibot';
 import { ValidationDirective } from './validation.directive';
-import { ValidationErrorMsgDirective } from './validation-error-msg.directive';
-import { MatTooltip } from '@angular/material/tooltip';
+import { ErrorDisplayDirective } from './error-display.directive';
 import { JsonPipe, KeyValuePipe } from '@angular/common';
 import { sanitizePathToClass } from './util';
-import { debounceTime, firstValueFrom, of } from 'rxjs';
 import { MatIcon } from '@angular/material/icon';
-
-const userSchema = v.objectAsync({
-  username: v.pipe(
-    v.string(),
-    v.nonEmpty('Please enter your username.'),
-    v.minLength(3, 'Username must be at least 3 characters long')
-  ),
-  email: v.pipeAsync(
-    v.string('Your email must be a string.'),
-    v.nonEmpty('Please enter your email.'),
-    v.email('The email address is badly formatted.'),
-    v.checkAsync(isEmailTaken, 'This email is already taken.')
-  ),
-  age: v.pipe(v.number(), v.maxValue(20, 'Age must be less than 20.')),
-  contacts: v.pipe(
-    v.array(
-      v.object({
-        name: v.pipe(v.string(), v.nonEmpty('Please enter address name.')),
-        phone: v.string(),
-        address: v.object({
-          country: v.pipe(
-            v.string(),
-            v.nonEmpty('Please enter address country.'),
-            v.minLength(2, 'Country must be at least 2 characters long')
-          ),
-          street: v.pipe(
-            v.string(),
-            v.nonEmpty('Please enter address street.')
-          ),
-          city: v.string(),
-        }),
-      })
-    ),
-    v.minLength(1, 'Please enter at least one contact.')
-  ),
-});
-
-type User = {
-  username: string;
-  email: string;
-  age: number;
-  contacts: {
-    name: string;
-    phone: string;
-    address?: {
-      country: string;
-      street: string;
-      city: string;
-    };
-  }[];
-};
+import { User, USER_SCHEMA } from './user.model';
+// import '@valibot/i18n/de';
+// import * as v from 'valibot';
+// Set the language configuration globally
+// v.setGlobalConfig({ lang: 'de' });
 
 @Component({
   selector: 'app-root',
@@ -67,8 +18,7 @@ type User = {
   imports: [
     FormsModule,
     ValidationDirective,
-    ValidationErrorMsgDirective,
-    MatTooltip,
+    ErrorDisplayDirective,
     KeyValuePipe,
     JsonPipe,
     MatIcon,
@@ -81,7 +31,7 @@ export class AppComponent {
     age: 18,
     contacts: [],
   };
-  schema = userSchema;
+  schema = USER_SCHEMA();
 
   errorMessages = signal<Record<string, string[]>>({});
 
@@ -112,13 +62,4 @@ export class AppComponent {
   removeContact(index: number): void {
     this.user.contacts.splice(index, 1);
   }
-}
-
-function isEmailTaken(email: string): Promise<boolean> {
-  const takenEmail = email.toLowerCase();
-  if (takenEmail === 'taken@valibot.com') {
-    return Promise.resolve(false);
-  }
-
-  return firstValueFrom(of(true).pipe(debounceTime(100)));
 }
